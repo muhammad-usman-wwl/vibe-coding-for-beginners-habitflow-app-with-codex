@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101411">
+  <title>HabitFlow — Build your rhythm</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101411;
+      --panel: #171d19;
+      --panel-soft: #1b231e;
+      --line: #29342d;
+      --text: #f0f5f1;
+      --muted: #8d9b91;
+      --green: #75e6a2;
+      --green-deep: #173c29;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(ellipse at 50% -15%, #1b3022 0, var(--bg) 48%);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    .shell { width: min(100% - 40px, 680px); margin: 0 auto; padding: 54px 0 72px; }
+    header { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-bottom: 42px; }
+    .brand { display: flex; align-items: center; gap: 13px; }
+    .brand-mark { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 14px; color: #102017; background: var(--green); font-size: 23px; font-weight: 800; box-shadow: 0 7px 24px #75e6a230; }
+    h1 { margin: 0; font-size: 22px; letter-spacing: -.7px; font-weight: 720; }
+    .tagline { margin: 3px 0 0; color: var(--muted); font-size: 12px; }
+    .date { text-align: right; color: #bdc9c0; font-size: 13px; font-weight: 550; }
+    .eyebrow { margin: 0 0 8px; color: var(--green); font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; }
+    .intro { margin-bottom: 25px; }
+    .intro h2 { margin: 0; font-size: clamp(27px, 5vw, 34px); letter-spacing: -1.2px; }
+    .intro p:last-child { color: var(--muted); font-size: 14px; margin: 9px 0 0; }
+    .progress-card { padding: 23px 24px 22px; margin-bottom: 31px; border: 1px solid var(--line); border-radius: 18px; background: linear-gradient(135deg, #1a241d, #171d19 68%); box-shadow: 0 16px 45px #0000001c; }
+    .progress-top { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; margin-bottom: 16px; }
+    .progress-label { color: #c4d0c7; font-size: 14px; font-weight: 600; }
+    .progress-count { color: var(--muted); font-size: 13px; margin-top: 5px; }
+    .percent { color: var(--green); font-size: 25px; font-weight: 730; letter-spacing: -1px; }
+    .best-streak { margin-top: 12px; color: #aab8ae; font-size: 12px; }
+    .best-streak strong { margin-left: 3px; color: #e0e9e2; font-weight: 650; }
+    .track { height: 8px; overflow: hidden; border-radius: 99px; background: #29332d; }
+    .fill { height: 100%; width: 0; border-radius: inherit; background: linear-gradient(90deg, #4ccf80, #8af0ae); transition: width .28s ease; }
+    .list-heading { display: flex; align-items: center; justify-content: space-between; margin: 0 2px 13px; }
+    .list-heading h3 { margin: 0; font-size: 15px; font-weight: 650; }
+    .list-heading span { color: var(--muted); font-size: 12px; }
+    .add-form { display: flex; gap: 9px; margin-bottom: 12px; }
+    .add-input { flex: 1; min-width: 0; height: 46px; padding: 0 15px; border: 1px solid var(--line); border-radius: 13px; outline: none; background: var(--panel); color: var(--text); font: inherit; font-size: 14px; transition: border-color .18s, box-shadow .18s; }
+    .add-input::placeholder { color: #758179; }
+    .add-input:focus { border-color: #4e9667; box-shadow: 0 0 0 3px #75e6a21a; }
+    .add-button { min-width: 82px; padding: 0 17px; border: 0; border-radius: 13px; background: var(--green); color: #102017; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; transition: background .18s, transform .18s; }
+    .add-button:hover { background: #9bf2b9; transform: translateY(-1px); }
+    .add-button:focus-visible, .delete:focus-visible { outline: 3px solid #75e6a255; outline-offset: 3px; }
+    .celebration { display: none; align-items: center; gap: 10px; padding: 14px 17px; margin: 0 0 14px; border: 1px solid #428c5c; border-radius: 14px; background: linear-gradient(110deg, #1b3c28, #1b2c21); color: #baf4ca; font-size: 14px; font-weight: 650; box-shadow: 0 8px 28px #75e6a214; }
+    .celebration.visible { display: flex; animation: gentle-pulse 2.2s ease-in-out infinite; }
+    .celebration-emoji { font-size: 19px; }
+    @keyframes gentle-pulse { 0%, 100% { box-shadow: 0 8px 28px #75e6a214; } 50% { box-shadow: 0 8px 34px #75e6a238; } }
+    .habits { display: grid; gap: 11px; }
+    .habit-card { display: flex; align-items: center; gap: 16px; min-height: 83px; padding: 16px 18px; border: 1px solid var(--line); border-radius: 16px; background: var(--panel); transition: border-color .2s, background .2s, transform .2s; }
+    .habit-card:hover { transform: translateY(-1px); border-color: #3a4a3e; }
+    .habit-card.done { border-color: #377c51; background: linear-gradient(110deg, #19251d, #171d19 74%); }
+    .habit-icon { display: grid; place-items: center; flex: 0 0 43px; height: 43px; border: 1px solid #2c3830; border-radius: 13px; background: var(--panel-soft); font-size: 20px; }
+    .habit-info { flex: 1; min-width: 0; }
+    .habit-name { margin: 0; font-size: 15px; font-weight: 620; letter-spacing: -.15px; }
+    .habit-card.done .habit-name { color: #d8f4e1; }
+    .streak { display: flex; align-items: center; gap: 5px; margin-top: 7px; color: var(--muted); font-size: 12px; }
+    .streak strong { color: #d6dfd8; font-weight: 600; }
+    .check { display: grid; place-items: center; flex: 0 0 38px; height: 38px; padding: 0; border: 1.5px solid #435048; border-radius: 50%; background: transparent; color: transparent; cursor: pointer; transition: all .18s ease; }
+    .check:hover { border-color: var(--green); background: #75e6a214; }
+    .check:focus-visible { outline: 3px solid #75e6a255; outline-offset: 3px; }
+    .check svg { width: 18px; height: 18px; }
+    .done .check { border-color: var(--green); background: var(--green); color: #102017; }
+    .done .check:hover { background: #9bf2b9; }
+    .delete { display: grid; place-items: center; flex: 0 0 28px; width: 28px; height: 28px; margin-left: -8px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: #829087; font: inherit; font-size: 20px; line-height: 1; cursor: pointer; transition: color .18s, background .18s; }
+    .delete:hover { color: #ff9b9b; background: #ff73731a; }
+    .footer-note { margin: 24px 0 0; text-align: center; color: #738078; font-size: 12px; }
+    @media (max-width: 520px) { .shell { width: min(100% - 30px, 680px); padding-top: 32px; } header { margin-bottom: 34px; } .progress-card { padding: 20px; } .habit-card { padding: 14px; } }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">↗</div>
+        <div><h1>HabitFlow</h1><p class="tagline">Small steps, steady progress.</p></div>
+      </div>
+      <div class="date" id="today"></div>
+    </header>
+
+    <section class="intro" aria-labelledby="greeting">
+      <p class="eyebrow">Your daily rhythm</p>
+      <h2 id="greeting">Make today count.</h2>
+      <p>A little consistency goes a long way.</p>
+    </section>
+
+    <section class="progress-card" aria-label="Today's progress">
+      <div class="progress-top">
+        <div><div class="progress-label">Today's progress</div><div class="progress-count" id="progress-count">0 of 4 done</div><div class="best-streak">🔥 Best streak <strong id="best-streak">0 days</strong></div></div>
+        <div class="percent" id="percentage">0%</div>
+      </div>
+      <div class="track" role="progressbar" id="progressbar" aria-label="Habits completed today" aria-valuemin="0" aria-valuemax="4" aria-valuenow="0"><div class="fill" id="progress-fill"></div></div>
+    </section>
+
+    <section aria-labelledby="habits-title">
+      <div class="list-heading"><h3 id="habits-title">Your habits</h3><span>One day at a time</span></div>
+      <div class="celebration" id="celebration" role="status" aria-live="polite"><span class="celebration-emoji" aria-hidden="true">🎉</span><span>All habits complete - amazing work!</span></div>
+      <form class="add-form" id="add-form">
+        <input class="add-input" id="habit-input" type="text" placeholder="e.g. Practice guitar" aria-label="New habit name" autocomplete="off">
+        <button class="add-button" type="submit">Add</button>
+      </form>
+      <div class="habits" id="habits"></div>
+    </section>
+    <p class="footer-note">Keep showing up for yourself.</p>
+  </main>
+  <script>
+    (() => {
+      const STORAGE_KEY = 'habitflow-v1';
+      const defaults = [
+        { name: 'Drink 2L of water', streak: 2, done: true, icon: '💧' },
+        { name: 'Read 10 pages', streak: 1, done: false, icon: '📖' },
+        { name: 'Morning run', streak: 0, done: false, icon: '👟' },
+        { name: 'Meditate 5 minutes', streak: 0, done: false, icon: '🧘' }
+      ];
+      const dateKey = () => {
+        const now = new Date();
+        return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+      };
+      const today = dateKey();
+      const dateEl = document.getElementById('today');
+      dateEl.textContent = new Intl.DateTimeFormat(undefined, { weekday: 'long', month: 'long', day: 'numeric' }).format(new Date());
+
+      let state;
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        if (saved && Array.isArray(saved.habits)) {
+          state = saved;
+          if (state.date !== today) {
+            state.habits.forEach(habit => habit.done = false);
+            state.date = today;
+          }
+        }
+      } catch (_) { /* Start from the supplied defaults if stored data is unavailable. */ }
+      if (!state) state = { date: today, habits: defaults.map(habit => ({ ...habit })) };
+
+      const escapeHtml = value => String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+      function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+      function render() {
+        const root = document.getElementById('habits');
+        root.innerHTML = state.habits.map((habit, index) => `
+          <article class="habit-card${habit.done ? ' done' : ''}">
+            <div class="habit-icon" aria-hidden="true">${habit.icon}</div>
+            <div class="habit-info"><h4 class="habit-name">${escapeHtml(habit.name)}</h4><div class="streak"><span aria-hidden="true">🔥</span><strong>${habit.streak}</strong> day${habit.streak === 1 ? '' : 's'} streak</div></div>
+            <button class="check" type="button" data-action="toggle" data-index="${index}" aria-label="${habit.done ? 'Mark ' + escapeHtml(habit.name) + ' not done' : 'Mark ' + escapeHtml(habit.name) + ' done'}" aria-pressed="${habit.done}">
+              <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m4.5 10.2 3.6 3.6 7.5-7.6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button class="delete" type="button" data-action="delete" data-index="${index}" aria-label="Delete ${escapeHtml(habit.name)}">×</button>
+          </article>`).join('');
+        const completed = state.habits.filter(habit => habit.done).length;
+        const total = state.habits.length;
+        const percent = total ? Math.round(completed / total * 100) : 0;
+        document.getElementById('progress-count').textContent = `${completed} of ${total} done`;
+        document.getElementById('percentage').textContent = `${percent}%`;
+        document.getElementById('progress-fill').style.width = `${percent}%`;
+        const bestStreak = state.habits.reduce((best, habit) => Math.max(best, Number(habit.streak) || 0), 0);
+        document.getElementById('best-streak').textContent = `${bestStreak} day${bestStreak === 1 ? '' : 's'}`;
+        document.getElementById('celebration').classList.toggle('visible', total > 0 && completed === total);
+        const bar = document.getElementById('progressbar');
+        bar.setAttribute('aria-valuenow', completed);
+        bar.setAttribute('aria-valuemax', total);
+      }
+      document.getElementById('habits').addEventListener('click', event => {
+        const button = event.target.closest('button[data-action][data-index]');
+        if (!button) return;
+        const index = Number(button.dataset.index);
+        const habit = state.habits[index];
+        if (button.dataset.action === 'delete') {
+          state.habits.splice(index, 1);
+          save();
+          render();
+          return;
+        }
+        if (!habit) return;
+        habit.done = !habit.done;
+        habit.streak = Math.max(0, habit.streak + (habit.done ? 1 : -1));
+        save();
+        render();
+      });
+      document.getElementById('add-form').addEventListener('submit', event => {
+        event.preventDefault();
+        const input = document.getElementById('habit-input');
+        const name = input.value.trim();
+        if (!name) return;
+        state.habits.push({ name, streak: 0, done: false, icon: '✨' });
+        input.value = '';
+        save();
+        render();
+        input.focus();
+      });
+      save();
+      render();
+    })();
+  </script>
+</body>
+</html>
